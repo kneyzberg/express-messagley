@@ -16,8 +16,8 @@ class User {
 
   static async register({ username, password, first_name, last_name, phone }) {
     const hashedPassword = await bcrpyt.hash(password, BCRYPT_WORK_FACTOR);
-    const result = await db.query(`INSERT into users(username, password, first_name, last_name, phone, join_at)
-                                      VALUES($1, $2, $3, $4, $5, current_timestamp)
+    const result = await db.query(`INSERT into users(username, password, first_name, last_name, phone, join_at, last_login_at)
+                                      VALUES($1, $2, $3, $4, $5, current_timestamp, current_timestamp)
                                       RETURNING username, password, first_name, last_name, phone`,
                                       [username, hashedPassword, first_name, last_name, phone]);
     return result.rows[0];
@@ -99,7 +99,13 @@ class User {
                                           WHERE username = $1`,
                                           [username]);
 
-    messageResults.rows.map(msg => to_user => msg.to_user = userResults.rows[0]);
+    // messageResults.rows.map(msg => to_user => msg.to_user = userResults.rows[0]);
+    let messages = messageResults.rows.map(msg => ({id: msg.id, 
+                                     to_user: userResults.rows[0],
+                                     body: msg.body, 
+                                     sent_at: msg.sent_at,
+                                     read_at: msg.read_at}));
+    
     return messages;
   }
 
