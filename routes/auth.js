@@ -19,12 +19,19 @@ router.post("/login", async function(req, res, next) {
     return res.json({ token });
   } 
   throw new UnauthorizedError("Invalid login credentials");
-}
+});
+
 
 
 /** POST /register: registers, logs in, and returns token.
  *
  * {username, password, first_name, last_name, phone} => {token}.
  */
+
+router.post("/register", async function(req, res, next) {
+  let { username } = await User.register(req.body);
+  let token = jwt.sign({ username }, SECRET_KEY);
+  return res.json({ token });
+});
 
 module.exports = router;
