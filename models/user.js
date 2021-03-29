@@ -90,24 +90,52 @@ class User {
    */
 
   static async messagesFrom(username) {
-    const messageResults = await db.query(`SELECT id, to_username as to_user, body, sent_at, read_at
-                                            FROM messages
-                                            WHERE to_username = $1`,
-                                          [username]);
-    const userResults = await db.query(`SELECT username, first_name, last_name, phone
-                                          FROM users
-                                          WHERE username = $1`,
-                                          [username]);
+    // const messageResults = await db.query(`SELECT id, to_username as to_user, body, sent_at, read_at
+    //                                         FROM messages
+    //                                         WHERE to_username = $1`,
+    //                                       [username]);
+    // const userResults = await db.query(`SELECT username, first_name, last_name, phone
+    //                                       FROM users
+    //                                       WHERE username = $1`,
+    //                                       [username]);
 
-    // messageResults.rows.map(msg => to_user => msg.to_user = userResults.rows[0]);
-    let messages = messageResults.rows.map(msg => ({id: msg.id, 
-                                     to_user: userResults.rows[0],
-                                     body: msg.body, 
-                                     sent_at: msg.sent_at,
-                                     read_at: msg.read_at}));
+  // messageResults.rows.map(msg => to_user => msg.to_user = userResults.rows[0]);
+    // let messages = messageResults.rows.map(msg => ({id: msg.id, 
+    //                                  to_user: userResults.rows[0],
+    //                                  body: msg.body, 
+    //                                  sent_at: msg.sent_at,
+    //                                  read_at: msg.read_at}));
     
-    return messages;
+    // return messages;
+
+    const results = await db.query(`SELECT m.id, 
+                            m.to_username as m.to_user, 
+                            m.sent_at, 
+                            m.body,
+                            m.read_at,
+                            user.username,
+                            user.first_name,
+                            user.last_name
+                    FROM messages as m 
+                    JOIN users ON m.to_username = user.username
+                    WHERE from_username = $1`,
+                    [username]);
+
+    return results.rows.map(message => 
+      ({id: message.id,
+        to_user: {
+          username: message.to_username,
+          first_name: message.first_name,
+          last_name: message.last_name,
+          phone: message.phone,
+        },
+        body: message.body,
+        sent_at: message.sent_at,
+        read: message.read_at,
+      }));
   }
+
+                    
 
   /** Return messages to this user.
    *
@@ -118,18 +146,44 @@ class User {
    */
 
   static async messagesTo(username) {
-    const messageResults = await db.query(`SELECT id, from_username as from_user, body, sent_at, read_at
-                                            FROM messages
-                                            WHERE from_username = $1`,
-                                          [username]);
-    const userResults = await db.query(`SELECT username, first_name, last_name, phone
-                                          FROM users
-                                          WHERE username = $1`,
-                                          [username]);
-    let messages = messageResults.rows.map(msg => msg.from_user = userResults.rows[0]);
-    return messages;
+//     const messageResults = await db.query(`SELECT id, from_username as from_user, body, sent_at, read_at
+//                                             FROM messages
+//                                             WHERE from_username = $1`,
+//                                           [username]);
+//     const userResults = await db.query(`SELECT username, first_name, last_name, phone
+//                                           FROM users
+//                                           WHERE username = $1`,
+//                                           [username]);
+//     let messages = messageResults.rows.map(msg => msg.from_user = userResults.rows[0]);
+//     return messages;
+//   }
+//  
+      const results = await db.query(`SELECT m.id, 
+                                      m.from_username as m.from_user, 
+                                      m.sent_at, 
+                                      m.body,
+                                      m.read_at,
+                                      user.username,
+                                      user.first_name,
+                                      user.last_name
+                                      FROM messages as m 
+                                      JOIN users ON m.from_username = user.username
+                                      WHERE to_username = $1`,
+                                      [username]);
+
+      return results.rows.map( message =>({
+        id: message.id,
+        from_user: {
+          username: message.from_user,
+          first_name: message.first_name,
+          last_name: message.last_name,
+          phone: message.phone,
+        },
+        body: message.body,
+        sent_at: message.sent_at,
+        read: message.read_at,
+      }));
   }
-}
 
 
 module.exports = User;
