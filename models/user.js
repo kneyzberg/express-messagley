@@ -90,23 +90,6 @@ class User {
    */
 
   static async messagesFrom(username) {
-    // const messageResults = await db.query(`SELECT id, to_username as to_user, body, sent_at, read_at
-    //                                         FROM messages
-    //                                         WHERE to_username = $1`,
-    //                                       [username]);
-    // const userResults = await db.query(`SELECT username, first_name, last_name, phone
-    //                                       FROM users
-    //                                       WHERE username = $1`,
-    //                                       [username]);
-
-  // messageResults.rows.map(msg => to_user => msg.to_user = userResults.rows[0]);
-    // let messages = messageResults.rows.map(msg => ({id: msg.id, 
-    //                                  to_user: userResults.rows[0],
-    //                                  body: msg.body, 
-    //                                  sent_at: msg.sent_at,
-    //                                  read_at: msg.read_at}));
-    
-    // return messages;
 
     const results = await db.query(`SELECT m.id, 
                             m.to_username as m.to_user, 
@@ -124,7 +107,7 @@ class User {
     return results.rows.map(message => 
       ({id: message.id,
         to_user: {
-          username: message.to_username,
+          username: message.to_user,
           first_name: message.first_name,
           last_name: message.last_name,
           phone: message.phone,
@@ -146,18 +129,7 @@ class User {
    */
 
   static async messagesTo(username) {
-//     const messageResults = await db.query(`SELECT id, from_username as from_user, body, sent_at, read_at
-//                                             FROM messages
-//                                             WHERE from_username = $1`,
-//                                           [username]);
-//     const userResults = await db.query(`SELECT username, first_name, last_name, phone
-//                                           FROM users
-//                                           WHERE username = $1`,
-//                                           [username]);
-//     let messages = messageResults.rows.map(msg => msg.from_user = userResults.rows[0]);
-//     return messages;
-//   }
-//  
+    
       const results = await db.query(`SELECT m.id, 
                                       m.from_username as m.from_user, 
                                       m.sent_at, 
@@ -184,6 +156,6 @@ class User {
         read: message.read_at,
       }));
   }
-
+}
 
 module.exports = User;
