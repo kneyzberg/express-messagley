@@ -2,7 +2,7 @@
 
 /** User of the site. */
 
-const bcrpyt = require("bcrypt");
+const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const {BCRYPT_WORK_FACTOR, SECRET_KEY} = require("../config");
 const db = require("../db");
@@ -15,7 +15,7 @@ class User {
    */
 
   static async register({ username, password, first_name, last_name, phone }) {
-    const hashedPassword = await bcrpyt.hash(password, BCRYPT_WORK_FACTOR);
+    const hashedPassword = await bcrypt.hash(password, BCRYPT_WORK_FACTOR);
     const result = await db.query(`INSERT into users(username, password, first_name, last_name, phone, join_at, last_login_at)
                                       VALUES($1, $2, $3, $4, $5, current_timestamp, current_timestamp)
                                       RETURNING username, password, first_name, last_name, phone`,
@@ -32,7 +32,12 @@ class User {
                                   [username]);
     let results = result.rows[0];
     if(results){
-      return await bcrpyt.compare(password, results.password);
+      let authenticatePassword = await bcrypt.compare(password, results.password);
+      if(authenticatePassword){
+        await User.updateLoginTimestamp(username);
+        return true;
+      }
+      return false;
     }
     throw new NotFoundError("That username does not exist");
   }
@@ -78,7 +83,11 @@ class User {
                                       FROM users
                                       WHERE username = $1`,
                                     [username]);
-    return result.rows[0];
+    let resultToCheck = result.rows[0];
+    if(!resultToCheck){
+      throw new NotFoundError("That username does not exist");
+    }
+    return resultToCheck
   }
 
   /** Return messages from this user.
@@ -92,29 +101,30 @@ class User {
   static async messagesFrom(username) {
 
     const results = await db.query(`SELECT m.id, 
-                            m.to_username as m.to_user, 
+                            m.to_username, 
                             m.sent_at, 
                             m.body,
                             m.read_at,
-                            user.username,
-                            user.first_name,
-                            user.last_name
+                            users.username,
+                            users.first_name,
+                            users.last_name,
+                            users.phone
                     FROM messages as m 
-                    JOIN users ON m.to_username = user.username
+                    JOIN users ON m.to_username = users.username
                     WHERE from_username = $1`,
                     [username]);
 
     return results.rows.map(message => 
       ({id: message.id,
         to_user: {
-          username: message.to_user,
+          username: message.username,
           first_name: message.first_name,
           last_name: message.last_name,
-          phone: message.phone,
+          phone: message.phone
         },
         body: message.body,
         sent_at: message.sent_at,
-        read: message.read_at,
+        read_at: message.read_at
       }));
   }
 
@@ -131,29 +141,30 @@ class User {
   static async messagesTo(username) {
     
       const results = await db.query(`SELECT m.id, 
-                                      m.from_username as m.from_user, 
+                                      m.from_username, 
                                       m.sent_at, 
                                       m.body,
                                       m.read_at,
-                                      user.username,
-                                      user.first_name,
-                                      user.last_name
+                                      users.username,
+                                      users.first_name,
+                                      users.last_name,
+                                      users.phone
                                       FROM messages as m 
-                                      JOIN users ON m.from_username = user.username
+                                      JOIN users ON m.from_username = users.username
                                       WHERE to_username = $1`,
                                       [username]);
 
       return results.rows.map( message =>({
         id: message.id,
         from_user: {
-          username: message.from_user,
+          username: message.username,
           first_name: message.first_name,
           last_name: message.last_name,
-          phone: message.phone,
+          phone: message.phone
         },
         body: message.body,
         sent_at: message.sent_at,
-        read: message.read_at,
+        read_at: message.read_at
       }));
   }
 }
