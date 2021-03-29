@@ -61,7 +61,7 @@ class User {
    * [{username, first_name, last_name}, ...] */
 
   static async all() {
-    const results = await db.query(`SELECT username, first_name, last_name
+    const results = await db.query(`SELECT username, first_name, last_name, phone
                                FROM users
                                ORDER by username`);
 
@@ -87,7 +87,7 @@ class User {
     if(!resultToCheck){
       throw new NotFoundError("That username does not exist");
     }
-    return resultToCheck
+    return resultToCheck;
   }
 
   /** Return messages from this user.
