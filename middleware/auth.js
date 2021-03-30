@@ -18,6 +18,7 @@ function authenticateJWT(req, res, next) {
     console.log("in payload", payload);
     return next();
   } catch (err) {
+    console.log(res.locals.user);
     // error in this middleware isn't error -- continue on
     return next();
   }
@@ -30,6 +31,7 @@ function ensureLoggedIn(req, res, next) {
     if (!res.locals.user) {
       throw new UnauthorizedError();
     } else {
+      console.log("in logged in!!!")
       return next();
     }
   } catch (err) {
