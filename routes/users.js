@@ -5,6 +5,7 @@ const router = new Router();
  
 const {authenticateJWT, ensureLoggedIn, ensureCorrectUser} = require("../middleware/auth")
 const User = require("../models/user");
+
 router.use(authenticateJWT);
 
 router.use(ensureLoggedIn);
@@ -66,5 +67,6 @@ router.get("/:username", ensureCorrectUser, async function(req, res, next){
   let messages = await User.messagesFrom(req.params.username);
 
   return res.json({messages});
-})
+});
+
 module.exports = router;

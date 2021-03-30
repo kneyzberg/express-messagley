@@ -61,9 +61,8 @@ router.post("/", async function(req, res,next){
  **/
  router.post("/:id/read", async function(req, res,next){
   let username = res.locals.user.username;
-  console.log(req.params.id);
 
-  let message = await Message.get(+(req.params.id));
+  let message = await Message.get(req.params.id);
   if(message.to_user.username === username){
     let readMessage = await Message.markRead(req.params.id);
     return res.json({message : readMessage});
