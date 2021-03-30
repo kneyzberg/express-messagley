@@ -87,7 +87,7 @@ class User {
     if(!resultToCheck){
       throw new NotFoundError("That username does not exist");
     }
-    return resultToCheck
+    return resultToCheck;
   }
 
   /** Return messages from this user.
@@ -114,8 +114,8 @@ class User {
                     WHERE from_username = $1`,
                     [username]);
 
-    return results.rows.map(message => 
-      ({id: message.id,
+    return results.rows.map(message => ({
+        id: message.id,
         to_user: {
           username: message.username,
           first_name: message.first_name,

@@ -13,11 +13,13 @@ const { UnauthorizedError } = require("../expressError");
 /** POST /login: {username, password} => {token} */
 
 router.post("/login", async function(req, res, next) {
+  
   let { username, password } = req.body;
+  
   if(await User.authenticate(username, password)) {
-    let token = jwt.sign({ username }, SECRET_KEY);
-    return res.json({ token });
-  } 
+    let _token = jwt.sign({ username }, SECRET_KEY);
+    return res.json({ _token });
+  }
   throw new UnauthorizedError("Invalid login credentials");
 });
 
@@ -28,8 +30,8 @@ router.post("/login", async function(req, res, next) {
 
 router.post("/register", async function(req, res, next) {
   let { username } = await User.register(req.body);
-  let token = jwt.sign({ username }, SECRET_KEY);
-  return res.json({ token });
+  let _token = jwt.sign({ username }, SECRET_KEY);
+  return res.json({ _token });
 });
 
 module.exports = router;
