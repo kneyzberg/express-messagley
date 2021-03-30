@@ -1,7 +1,7 @@
 {
   "name": "messagely",
   "version": "1.1.0",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
     "test": "jest -i",
     "start": "node server.js"
@@ -11,11 +11,13 @@
   "dependencies": {
     "bcrypt": "^5.0.0",
     "body-parser": "^1.19.0",
+    "chokidar": "^3.5.1",
     "cors": "^2.8.5",
     "dotenv": "^8.2.0",
     "express": "^5.0.0-alpha.8",
     "express-cors": "^0.0.3",
     "jsonwebtoken": "^8.5.1",
+    "nunjucks": "^3.2.3",
     "pg": "^8.2.1",
     "supertest": "^5.0.0-0"
   },

@@ -12,6 +12,11 @@ const { UnauthorizedError } = require("../expressError");
 
 /** POST /login: {username, password} => {token} */
 
+router.get("/login", async function(req, res, next) {
+  
+  return res.render("login.html"); 
+});
+
 router.post("/login", async function(req, res, next) {
   
   let { username, password } = req.body;
