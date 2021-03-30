@@ -21,8 +21,6 @@ router.post("/login", async function(req, res, next) {
   throw new UnauthorizedError("Invalid login credentials");
 });
 
-
-
 /** POST /register: registers, logs in, and returns token.
  *
  * {username, password, first_name, last_name, phone} => {token}.
